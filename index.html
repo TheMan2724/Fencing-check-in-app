@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fencing Club Check-In</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, sans-serif; background: #f5f5f0; min-height: 100vh; color: #1a1a1a; }
@@ -284,12 +284,8 @@ function showQR(i) {
   document.getElementById('qr-modal-title').textContent = ev.name;
   document.getElementById('qr-modal-url').textContent = url;
   const container = document.getElementById('qr-container');
-  container.innerHTML = '<canvas id="qr-canvas"></canvas>';
-  new QRious({
-    element: document.getElementById('qr-canvas'),
-    value: url, size: 200,
-    foreground: '#1a1a2e', background: '#ffffff', level: 'H'
-  });
+  const imgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&color=1a1a2e`;
+  container.innerHTML = `<img src="${imgUrl}" width="200" height="200" alt="QR Code" style="border-radius:8px" />`;
   document.getElementById('qr-modal').classList.remove('hidden');
 }
 
@@ -364,3 +360,4 @@ function setAlert(id, msg, type) {
 </script>
 </body>
 </html>
+
