@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fencing Club Check-In</title>
-
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, sans-serif; background: #f5f5f0; min-height: 100vh; color: #1a1a1a; }
@@ -33,10 +32,7 @@
   .radio-group { display: flex; gap: 8px; margin-top: 4px; }
   .radio-group label { margin: 0; flex: 1; }
   .radio-group input { display: none; }
-  .radio-group span {
-    display: block; text-align: center; padding: 8px; border: 0.5px solid #ccc;
-    border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.15s; color: #555;
-  }
+  .radio-group span { display: block; text-align: center; padding: 8px; border: 0.5px solid #ccc; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.15s; color: #555; }
   .radio-group input:checked + span { border-color: #1a1a2e; background: #1a1a2e; color: #fff; font-weight: 500; }
   .event-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid #eee; }
   .event-item:last-child { border-bottom: none; }
@@ -75,18 +71,15 @@
 <div class="screen active" id="screen-login">
   <div class="header">
     <div class="logo">🤺</div>
-    <div>
-      <h1>Fencing Club</h1>
-      <div class="subtitle">Event Check-In System</div>
-    </div>
+    <div><h1>Fencing Club</h1><div class="subtitle">Event Check-In System</div></div>
   </div>
   <div class="content" style="display:flex;flex-direction:column;justify-content:center;max-width:420px;margin:auto;width:100%">
     <div class="card">
       <h2>Admin Login</h2>
       <div id="login-alert"></div>
-      <label>Admin Password</label>
+      <label for="login-pw">Admin Password</label>
       <input type="password" id="login-pw" placeholder="Enter password" />
-      <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+      <button class="btn btn-primary" id="login-btn">Sign In</button>
     </div>
     <p style="text-align:center;font-size:12px;color:#aaa;margin-top:8px">Attendee? Scan the event QR code to check in.</p>
   </div>
@@ -96,11 +89,8 @@
 <div class="screen" id="screen-admin">
   <div class="header">
     <div class="logo">🤺</div>
-    <div>
-      <h1>Admin Dashboard</h1>
-      <div class="subtitle">Fencing Club Check-In</div>
-    </div>
-    <button class="back-btn" onclick="logout()">Sign Out</button>
+    <div><h1>Admin Dashboard</h1><div class="subtitle">Fencing Club Check-In</div></div>
+    <button class="back-btn" id="logout-btn">Sign Out</button>
   </div>
   <div class="content">
     <div id="admin-alert"></div>
@@ -110,20 +100,18 @@
     </div>
     <div class="card">
       <h2>Create new event</h2>
-      <label>Event name</label>
+      <label for="new-event-name">Event name</label>
       <input type="text" id="new-event-name" placeholder="e.g. Tuesday Practice" />
-      <label>Date</label>
+      <label for="new-event-date">Date</label>
       <input type="text" id="new-event-date" placeholder="e.g. May 13 2026" />
-      <button class="btn btn-primary" onclick="createEvent()">Create Event &amp; Generate QR</button>
+      <button class="btn btn-primary" id="create-event-btn">Create Event &amp; Generate QR</button>
     </div>
     <div class="section-title">Your Events</div>
-    <div class="card" id="event-list-card">
-      <div id="event-list"><div class="empty-state">No events yet. Create one above.</div></div>
-    </div>
+    <div class="card"><div id="event-list"><div class="empty-state">No events yet. Create one above.</div></div></div>
     <div class="card" style="background:#f9f9f6">
       <h2 style="font-size:13px;color:#888">Google Sheets setup</h2>
-      <label>Apps Script Web App URL</label>
-      <input type="text" id="script-url" placeholder="Paste your deployed script URL here" oninput="saveScriptUrl()" />
+      <label for="script-url">Apps Script Web App URL</label>
+      <input type="text" id="script-url" placeholder="Paste your deployed script URL here" />
       <p style="font-size:11px;color:#aaa;margin-top:6px">Paste the URL from your deployed Google Apps Script here.</p>
     </div>
   </div>
@@ -133,20 +121,17 @@
 <div class="screen" id="screen-checkin">
   <div class="header">
     <div class="logo">🤺</div>
-    <div>
-      <h1 id="checkin-event-title">Event Check-In</h1>
-      <div class="subtitle" id="checkin-event-date"></div>
-    </div>
+    <div><h1 id="checkin-event-title">Event Check-In</h1><div class="subtitle" id="checkin-event-date"></div></div>
   </div>
   <div class="content" style="max-width:480px;margin:auto;width:100%">
     <div id="checkin-alert"></div>
     <div class="card" id="checkin-form-card">
       <h2>Check yourself in</h2>
-      <label>Full name</label>
+      <label for="ci-name">Full name</label>
       <input type="text" id="ci-name" placeholder="Jane Smith" />
-      <label>Email address</label>
+      <label for="ci-email">Email address</label>
       <input type="email" id="ci-email" placeholder="jane@example.com" />
-      <label>Weapon</label>
+      <label for="ci-weapon">Weapon</label>
       <select id="ci-weapon">
         <option value="">Select your weapon…</option>
         <option value="Foil">Foil</option>
@@ -158,7 +143,7 @@
         <label><input type="radio" name="payment" value="Paid" /><span>✓ Paid</span></label>
         <label><input type="radio" name="payment" value="Unpaid" /><span>✗ Unpaid</span></label>
       </div>
-      <button class="btn btn-primary" id="checkin-submit-btn" onclick="submitCheckin()">Check In</button>
+      <button class="btn btn-primary" id="checkin-submit-btn">Check In</button>
     </div>
     <div id="checkin-success" style="display:none">
       <div class="success-screen">
@@ -179,14 +164,14 @@
     <div id="qr-container"></div>
     <p style="font-size:12px;color:#aaa">Attendees scan this to check in on their phone.</p>
     <div class="modal-actions">
-      <button class="btn btn-outline" onclick="copyLink()">Copy Link</button>
-      <button class="btn btn-primary" onclick="closeQR()">Done</button>
+      <button class="btn btn-outline" id="copy-link-btn">Copy Link</button>
+      <button class="btn btn-primary" id="close-qr-btn">Done</button>
     </div>
   </div>
 </div>
 
 <script>
-const ADMIN_PW_DEFAULT = "fencing2026";
+const ADMIN_PW_DEFAULT = 'fencing2026';
 let events = JSON.parse(localStorage.getItem('fc_events') || '[]');
 let scriptUrl = localStorage.getItem('fc_script_url') || '';
 let currentCheckinEvent = null;
@@ -200,68 +185,56 @@ function getParam(k) {
   return new URLSearchParams(window.location.search).get(k);
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const eventId = getParam('event');
-  if (eventId) {
-    loadCheckin(eventId);
-  } else {
-    show('screen-login');
-  }
-  if (scriptUrl) document.getElementById('script-url').value = scriptUrl;
-});
-
-function doLogin() {
-  const pw = document.getElementById('login-pw').value;
-  const stored = localStorage.getItem('fc_admin_pw') || ADMIN_PW_DEFAULT;
-  if (pw === stored) {
-    show('screen-admin');
-    renderAdmin();
-  } else {
-    setAlert('login-alert', 'Incorrect password. Try again.', 'error');
-  }
+function setAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.innerHTML = '<div class="alert alert-' + type + '">' + msg + '</div>';
+  setTimeout(() => { el.innerHTML = ''; }, 4000);
 }
 
-function logout() {
-  document.getElementById('login-pw').value = '';
-  show('screen-login');
+function saveEvents() {
+  localStorage.setItem('fc_events', JSON.stringify(events));
 }
 
 function renderAdmin() {
-  const list = document.getElementById('event-list');
   document.getElementById('stat-events').textContent = events.length;
   const total = events.reduce((s, e) => s + (e.checkins || 0), 0);
   document.getElementById('stat-checkins').textContent = total;
+  const list = document.getElementById('event-list');
   if (!events.length) {
     list.innerHTML = '<div class="empty-state">No events yet. Create one above.</div>';
     return;
   }
-  list.innerHTML = events.map((ev, i) => `
-    <div class="event-item">
-      <div class="event-dot"></div>
-      <div style="flex:1">
-        <div class="event-name">${ev.name}</div>
-        <div class="event-date">${ev.date} · ${ev.checkins || 0} check-ins</div>
-      </div>
-      <div class="event-actions">
-        <button class="icon-btn" onclick="showQR(${i})" title="Show QR">📱 QR</button>
-        <button class="icon-btn" onclick="deleteEvent(${i})" title="Delete">🗑</button>
-      </div>
-    </div>
-  `).join('');
+  list.innerHTML = events.map((ev, i) =>
+    '<div class="event-item">' +
+      '<div class="event-dot"></div>' +
+      '<div style="flex:1">' +
+        '<div class="event-name">' + ev.name + '</div>' +
+        '<div class="event-date">' + ev.date + ' · ' + (ev.checkins || 0) + ' check-ins</div>' +
+      '</div>' +
+      '<div class="event-actions">' +
+        '<button class="icon-btn qr-btn" data-index="' + i + '">📱 QR</button>' +
+        '<button class="icon-btn del-btn" data-index="' + i + '">🗑</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+
+  document.querySelectorAll('.qr-btn').forEach(btn => {
+    btn.addEventListener('click', () => showQR(parseInt(btn.dataset.index)));
+  });
+  document.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', () => deleteEvent(parseInt(btn.dataset.index)));
+  });
 }
 
-function createEvent() {
-  const name = document.getElementById('new-event-name').value.trim();
-  const date = document.getElementById('new-event-date').value.trim();
-  if (!name || !date) { setAlert('admin-alert', 'Please enter an event name and date.', 'error'); return; }
-  const id = 'ev_' + Date.now();
-  events.push({ id, name, date, checkins: 0, created: new Date().toISOString() });
-  saveEvents();
-  document.getElementById('new-event-name').value = '';
-  document.getElementById('new-event-date').value = '';
-  renderAdmin();
-  showQR(events.length - 1);
-  setAlert('admin-alert', `Event "${name}" created!`, 'success');
+function showQR(i) {
+  const ev = events[i];
+  const base = window.location.href.split('?')[0];
+  const url = base + '?event=' + ev.id;
+  document.getElementById('qr-modal-title').textContent = ev.name;
+  document.getElementById('qr-modal-url').textContent = url;
+  const imgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(url) + '&color=1a1a2e';
+  document.getElementById('qr-container').innerHTML = '<img src="' + imgUrl + '" width="200" height="200" alt="QR Code" style="border-radius:8px" />';
+  document.getElementById('qr-modal').classList.remove('hidden');
 }
 
 function deleteEvent(i) {
@@ -271,35 +244,72 @@ function deleteEvent(i) {
   renderAdmin();
 }
 
-function saveEvents() { localStorage.setItem('fc_events', JSON.stringify(events)); }
-function saveScriptUrl() {
-  scriptUrl = document.getElementById('script-url').value.trim();
-  localStorage.setItem('fc_script_url', scriptUrl);
-}
+// ── Wire up buttons ──
+document.addEventListener('DOMContentLoaded', () => {
+  const eventId = getParam('event');
+  if (eventId) {
+    loadCheckin(eventId);
+  } else {
+    show('screen-login');
+  }
 
-function showQR(i) {
-  const ev = events[i];
-  const base = window.location.href.split('?')[0];
-  const url = `${base}?event=${ev.id}`;
-  document.getElementById('qr-modal-title').textContent = ev.name;
-  document.getElementById('qr-modal-url').textContent = url;
-  const container = document.getElementById('qr-container');
-  const imgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&color=1a1a2e`;
-  container.innerHTML = `<img src="${imgUrl}" width="200" height="200" alt="QR Code" style="border-radius:8px" />`;
-  document.getElementById('qr-modal').classList.remove('hidden');
-}
+  if (scriptUrl) document.getElementById('script-url').value = scriptUrl;
 
-function closeQR() { document.getElementById('qr-modal').classList.add('hidden'); }
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const pw = document.getElementById('login-pw').value;
+    const stored = localStorage.getItem('fc_admin_pw') || ADMIN_PW_DEFAULT;
+    if (pw === stored) {
+      show('screen-admin');
+      renderAdmin();
+    } else {
+      setAlert('login-alert', 'Incorrect password. Try again.', 'error');
+    }
+  });
 
-function copyLink() {
-  const url = document.getElementById('qr-modal-url').textContent;
-  navigator.clipboard.writeText(url).then(() => alert('Link copied!'));
-}
+  document.getElementById('login-pw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('login-btn').click();
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    document.getElementById('login-pw').value = '';
+    show('screen-login');
+  });
+
+  document.getElementById('create-event-btn').addEventListener('click', () => {
+    const name = document.getElementById('new-event-name').value.trim();
+    const date = document.getElementById('new-event-date').value.trim();
+    if (!name || !date) { setAlert('admin-alert', 'Please enter an event name and date.', 'error'); return; }
+    const id = 'ev_' + Date.now();
+    events.push({ id, name, date, checkins: 0, created: new Date().toISOString() });
+    saveEvents();
+    document.getElementById('new-event-name').value = '';
+    document.getElementById('new-event-date').value = '';
+    renderAdmin();
+    showQR(events.length - 1);
+    setAlert('admin-alert', 'Event "' + name + '" created!', 'success');
+  });
+
+  document.getElementById('script-url').addEventListener('input', () => {
+    scriptUrl = document.getElementById('script-url').value.trim();
+    localStorage.setItem('fc_script_url', scriptUrl);
+  });
+
+  document.getElementById('close-qr-btn').addEventListener('click', () => {
+    document.getElementById('qr-modal').classList.add('hidden');
+  });
+
+  document.getElementById('copy-link-btn').addEventListener('click', () => {
+    const url = document.getElementById('qr-modal-url').textContent;
+    navigator.clipboard.writeText(url).then(() => alert('Link copied!'));
+  });
+
+  document.getElementById('checkin-submit-btn').addEventListener('click', submitCheckin);
+});
 
 function loadCheckin(eventId) {
   const ev = events.find(e => e.id === eventId);
+  show('screen-checkin');
   if (!ev) {
-    show('screen-checkin');
     setAlert('checkin-alert', 'Event not found. Please scan the correct QR code.', 'error');
     document.getElementById('checkin-form-card').style.display = 'none';
     return;
@@ -307,14 +317,14 @@ function loadCheckin(eventId) {
   currentCheckinEvent = ev;
   document.getElementById('checkin-event-title').textContent = ev.name;
   document.getElementById('checkin-event-date').textContent = ev.date;
-  show('screen-checkin');
 }
 
 async function submitCheckin() {
   const name = document.getElementById('ci-name').value.trim();
   const email = document.getElementById('ci-email').value.trim();
   const weapon = document.getElementById('ci-weapon').value;
-  const payment = document.querySelector('input[name="payment"]:checked')?.value;
+  const paymentEl = document.querySelector('input[name="payment"]:checked');
+  const payment = paymentEl ? paymentEl.value : '';
 
   if (!name || !email || !weapon || !payment) {
     setAlert('checkin-alert', 'Please fill in all fields.', 'error');
@@ -341,7 +351,9 @@ async function submitCheckin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-    } catch (e) { console.warn('Sheet write failed:', e); }
+    } catch (err) {
+      console.warn('Sheet write failed:', err);
+    }
   }
 
   const ev = events.find(e => e.id === currentCheckinEvent.id);
@@ -349,15 +361,8 @@ async function submitCheckin() {
 
   document.getElementById('checkin-form-card').style.display = 'none';
   document.getElementById('checkin-success').style.display = 'block';
-  document.getElementById('success-name-msg').textContent = `Welcome, ${name}! 🤺`;
-}
-
-function setAlert(id, msg, type) {
-  const el = document.getElementById(id);
-  el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
-  setTimeout(() => el.innerHTML = '', 4000);
+  document.getElementById('success-name-msg').textContent = 'Welcome, ' + name + '! 🤺';
 }
 </script>
 </body>
 </html>
-
