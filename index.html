@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fencing Club Check-In</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f0; min-height: 100vh; color: #1a1a1a; }
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+  .header { background: #1a1a2e; color: #fff; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 12px; }
+  .header h1 { font-size: 18px; font-weight: 500; }
+  .header .subtitle { font-size: 13px; opacity: 0.65; }
+  .logo { width: 36px; height: 36px; background: #e8c547; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .back-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-left: auto; }
+  .content { padding: 1.5rem; flex: 1; }
+  .card { background: #fff; border-radius: 12px; border: 0.5px solid #e0e0e0; padding: 1.25rem; margin-bottom: 1rem; }
+  .card h2 { font-size: 15px; font-weight: 500; margin-bottom: 1rem; color: #1a1a1a; }
+  label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 12px; }
+  label:first-of-type { margin-top: 0; }
+  input[type=text], input[type=email], input[type=password], select {
+    width: 100%; padding: 9px 12px; border: 0.5px solid #ccc; border-radius: 8px;
+    font-size: 15px; background: #fafafa; color: #1a1a1a;
+  }
+  input:focus, select:focus { outline: none; border-color: #1a1a2e; background: #fff; }
+  .btn { display: inline-block; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: opacity 0.15s; }
+  .btn-primary { background: #1a1a2e; color: #fff; width: 100%; margin-top: 1rem; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-outline { background: #fff; border: 0.5px solid #ccc; color: #333; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .radio-group { display: flex; gap: 8px; margin-top: 4px; }
+  .radio-group label { margin: 0; flex: 1; }
+  .radio-group input { display: none; }
+  .radio-group span {
+    display: block; text-align: center; padding: 8px; border: 0.5px solid #ccc;
+    border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.15s; color: #555;
+  }
+  .radio-group input:checked + span { border-color: #1a1a2e; background: #1a1a2e; color: #fff; font-weight: 500; }
+  .event-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid #eee; }
+  .event-item:last-child { border-bottom: none; }
+  .event-dot { width: 10px; height: 10px; border-radius: 50%; background: #e8c547; flex-shrink: 0; }
+  .event-name { font-size: 14px; font-weight: 500; flex: 1; }
+  .event-date { font-size: 12px; color: #888; }
+  .event-actions { display: flex; gap: 6px; }
+  .icon-btn { background: none; border: 0.5px solid #ccc; border-radius: 6px; padding: 5px 8px; cursor: pointer; font-size: 13px; color: #555; }
+  .icon-btn:hover { background: #f5f5f0; }
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .modal-bg.hidden { display: none; }
+  .modal { background: #fff; border-radius: 16px; padding: 1.5rem; width: 90%; max-width: 360px; text-align: center; }
+  .modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .modal .event-url { font-size: 11px; color: #888; word-break: break-all; margin-bottom: 1rem; }
+  #qr-container { display: flex; justify-content: center; margin: 1rem 0; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 1rem; }
+  .modal-actions .btn { flex: 1; }
+  .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 1rem; }
+  .alert-error { background: #fdecea; color: #c0392b; border: 0.5px solid #f5c6c2; }
+  .alert-success { background: #eafaf1; color: #1a7a4a; border: 0.5px solid #a9dfbf; }
+  .success-icon { width: 64px; height: 64px; background: #eafaf1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 1rem auto; font-size: 32px; }
+  .success-screen { text-align: center; padding: 2rem 1.5rem; }
+  .success-screen h2 { font-size: 22px; font-weight: 500; margin-bottom: 8px; }
+  .success-screen p { color: #666; font-size: 14px; }
+  .stats-bar { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .stat { flex: 1; background: #fff; border: 0.5px solid #e0e0e0; border-radius: 10px; padding: 10px; text-align: center; }
+  .stat-val { font-size: 22px; font-weight: 500; color: #1a1a2e; }
+  .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+  .section-title { font-size: 13px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .empty-state { text-align: center; color: #aaa; font-size: 14px; padding: 2rem 0; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="screen active" id="screen-login">
+  <div class="header">
+    <div class="logo">🤺</div>
+    <div>
+      <h1>Fencing Club</h1>
+      <div class="subtitle">Event Check-In System</div>
+    </div>
+  </div>
+  <div class="content" style="display:flex;flex-direction:column;justify-content:center;max-width:420px;margin:auto;width:100%">
+    <div class="card">
+      <h2>Admin Login</h2>
+      <div id="login-alert"></div>
+      <label>Admin Password</label>
+      <input type="password" id="login-pw" placeholder="Enter password" />
+      <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+    </div>
+    <p style="text-align:center;font-size:12px;color:#aaa;margin-top:8px">Attendee? Scan the event QR code to check in.</p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="screen" id="screen-admin">
+  <div class="header">
+    <div class="logo">🤺</div>
+    <div>
+      <h1>Admin Dashboard</h1>
+      <div class="subtitle">Fencing Club Check-In</div>
+    </div>
+    <button class="back-btn" onclick="logout()">Sign Out</button>
+  </div>
+  <div class="content">
+    <div id="admin-alert"></div>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-val" id="stat-events">0</div><div class="stat-label">Events</div></div>
+      <div class="stat"><div class="stat-val" id="stat-checkins">0</div><div class="stat-label">Total check-ins</div></div>
+    </div>
+    <div class="card">
+      <h2>Create new event</h2>
+      <label>Event name</label>
+      <input type="text" id="new-event-name" placeholder="e.g. Tuesday Practice" />
+      <label>Date</label>
+      <input type="text" id="new-event-date" placeholder="e.g. May 13 2026" />
+      <button class="btn btn-primary" onclick="createEvent()">Create Event &amp; Generate QR</button>
+    </div>
+    <div class="section-title">Your Events</div>
+    <div class="card" id="event-list-card">
+      <div id="event-list"><div class="empty-state">No events yet. Create one above.</div></div>
+    </div>
+    <div class="card" style="background:#f9f9f6">
+      <h2 style="font-size:13px;color:#888">Google Sheets setup</h2>
+      <label>Apps Script Web App URL</label>
+      <input type="text" id="script-url" placeholder="Paste your deployed script URL here" oninput="saveScriptUrl()" />
+      <p style="font-size:11px;color:#aaa;margin-top:6px">Paste the URL from your deployed Google Apps Script here.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CHECK-IN -->
+<div class="screen" id="screen-checkin">
+  <div class="header">
+    <div class="logo">🤺</div>
+    <div>
+      <h1 id="checkin-event-title">Event Check-In</h1>
+      <div class="subtitle" id="checkin-event-date"></div>
+    </div>
+  </div>
+  <div class="content" style="max-width:480px;margin:auto;width:100%">
+    <div id="checkin-alert"></div>
+    <div class="card" id="checkin-form-card">
+      <h2>Check yourself in</h2>
+      <label>Full name</label>
+      <input type="text" id="ci-name" placeholder="Jane Smith" />
+      <label>Email address</label>
+      <input type="email" id="ci-email" placeholder="jane@example.com" />
+      <label>Weapon</label>
+      <select id="ci-weapon">
+        <option value="">Select your weapon…</option>
+        <option value="Foil">Foil</option>
+        <option value="Épée">Épée</option>
+        <option value="Sabre">Sabre</option>
+      </select>
+      <label>Payment status</label>
+      <div class="radio-group">
+        <label><input type="radio" name="payment" value="Paid" /><span>✓ Paid</span></label>
+        <label><input type="radio" name="payment" value="Unpaid" /><span>✗ Unpaid</span></label>
+      </div>
+      <button class="btn btn-primary" id="checkin-submit-btn" onclick="submitCheckin()">Check In</button>
+    </div>
+    <div id="checkin-success" style="display:none">
+      <div class="success-screen">
+        <div class="success-icon">✅</div>
+        <h2>You're checked in!</h2>
+        <p id="success-name-msg"></p>
+        <p style="margin-top:8px;color:#aaa;font-size:13px">Your attendance has been recorded.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal-bg hidden" id="qr-modal">
+  <div class="modal">
+    <h3 id="qr-modal-title">QR Code</h3>
+    <div class="event-url" id="qr-modal-url"></div>
+    <div id="qr-container"></div>
+    <p style="font-size:12px;color:#aaa">Attendees scan this to check in on their phone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="copyLink()">Copy Link</button>
+      <button class="btn btn-primary" onclick="closeQR()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PW_DEFAULT = "fencing2026";
+let events = JSON.parse(localStorage.getItem('fc_events') || '[]');
+let scriptUrl = localStorage.getItem('fc_script_url') || '';
+let currentCheckinEvent = null;
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function getParam(k) {
+  return new URLSearchParams(window.location.search).get(k);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const eventId = getParam('event');
+  if (eventId) {
+    loadCheckin(eventId);
+  } else {
+    show('screen-login');
+  }
+  if (scriptUrl) document.getElementById('script-url').value = scriptUrl;
+});
+
+function doLogin() {
+  const pw = document.getElementById('login-pw').value;
+  const stored = localStorage.getItem('fc_admin_pw') || ADMIN_PW_DEFAULT;
+  if (pw === stored) {
+    show('screen-admin');
+    renderAdmin();
+  } else {
+    setAlert('login-alert', 'Incorrect password. Try again.', 'error');
+  }
+}
+
+function logout() {
+  document.getElementById('login-pw').value = '';
+  show('screen-login');
+}
+
+function renderAdmin() {
+  const list = document.getElementById('event-list');
+  document.getElementById('stat-events').textContent = events.length;
+  const total = events.reduce((s, e) => s + (e.checkins || 0), 0);
+  document.getElementById('stat-checkins').textContent = total;
+  if (!events.length) {
+    list.innerHTML = '<div class="empty-state">No events yet. Create one above.</div>';
+    return;
+  }
+  list.innerHTML = events.map((ev, i) => `
+    <div class="event-item">
+      <div class="event-dot"></div>
+      <div style="flex:1">
+        <div class="event-name">${ev.name}</div>
+        <div class="event-date">${ev.date} · ${ev.checkins || 0} check-ins</div>
+      </div>
+      <div class="event-actions">
+        <button class="icon-btn" onclick="showQR(${i})" title="Show QR">📱 QR</button>
+        <button class="icon-btn" onclick="deleteEvent(${i})" title="Delete">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function createEvent() {
+  const name = document.getElementById('new-event-name').value.trim();
+  const date = document.getElementById('new-event-date').value.trim();
+  if (!name || !date) { setAlert('admin-alert', 'Please enter an event name and date.', 'error'); return; }
+  const id = 'ev_' + Date.now();
+  events.push({ id, name, date, checkins: 0, created: new Date().toISOString() });
+  saveEvents();
+  document.getElementById('new-event-name').value = '';
+  document.getElementById('new-event-date').value = '';
+  renderAdmin();
+  showQR(events.length - 1);
+  setAlert('admin-alert', `Event "${name}" created!`, 'success');
+}
+
+function deleteEvent(i) {
+  if (!confirm('Delete this event? This cannot be undone.')) return;
+  events.splice(i, 1);
+  saveEvents();
+  renderAdmin();
+}
+
+function saveEvents() { localStorage.setItem('fc_events', JSON.stringify(events)); }
+function saveScriptUrl() {
+  scriptUrl = document.getElementById('script-url').value.trim();
+  localStorage.setItem('fc_script_url', scriptUrl);
+}
+
+function showQR(i) {
+  const ev = events[i];
+  const base = window.location.href.split('?')[0];
+  const url = `${base}?event=${ev.id}`;
+  document.getElementById('qr-modal-title').textContent = ev.name;
+  document.getElementById('qr-modal-url').textContent = url;
+  const container = document.getElementById('qr-container');
+  container.innerHTML = '<canvas id="qr-canvas"></canvas>';
+  new QRious({
+    element: document.getElementById('qr-canvas'),
+    value: url, size: 200,
+    foreground: '#1a1a2e', background: '#ffffff', level: 'H'
+  });
+  document.getElementById('qr-modal').classList.remove('hidden');
+}
+
+function closeQR() { document.getElementById('qr-modal').classList.add('hidden'); }
+
+function copyLink() {
+  const url = document.getElementById('qr-modal-url').textContent;
+  navigator.clipboard.writeText(url).then(() => alert('Link copied!'));
+}
+
+function loadCheckin(eventId) {
+  const ev = events.find(e => e.id === eventId);
+  if (!ev) {
+    show('screen-checkin');
+    setAlert('checkin-alert', 'Event not found. Please scan the correct QR code.', 'error');
+    document.getElementById('checkin-form-card').style.display = 'none';
+    return;
+  }
+  currentCheckinEvent = ev;
+  document.getElementById('checkin-event-title').textContent = ev.name;
+  document.getElementById('checkin-event-date').textContent = ev.date;
+  show('screen-checkin');
+}
+
+async function submitCheckin() {
+  const name = document.getElementById('ci-name').value.trim();
+  const email = document.getElementById('ci-email').value.trim();
+  const weapon = document.getElementById('ci-weapon').value;
+  const payment = document.querySelector('input[name="payment"]:checked')?.value;
+
+  if (!name || !email || !weapon || !payment) {
+    setAlert('checkin-alert', 'Please fill in all fields.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('checkin-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const payload = {
+    action: 'checkin',
+    eventId: currentCheckinEvent.id,
+    eventName: currentCheckinEvent.name,
+    name, email, weapon, payment,
+    timestamp: new Date().toISOString()
+  };
+
+  if (scriptUrl) {
+    try {
+      await fetch(scriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) { console.warn('Sheet write failed:', e); }
+  }
+
+  const ev = events.find(e => e.id === currentCheckinEvent.id);
+  if (ev) { ev.checkins = (ev.checkins || 0) + 1; saveEvents(); }
+
+  document.getElementById('checkin-form-card').style.display = 'none';
+  document.getElementById('checkin-success').style.display = 'block';
+  document.getElementById('success-name-msg').textContent = `Welcome, ${name}! 🤺`;
+}
+
+function setAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(() => el.innerHTML = '', 4000);
+}
+</script>
+</body>
+</html>
